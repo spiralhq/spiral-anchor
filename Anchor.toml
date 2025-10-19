@@ -3,11 +3,10 @@ package_manager = "yarn"
 
 [features]
 resolution = true
-seeds = true
 skip-lint = false
 
 [programs.localnet]
-spiral = "ATcPjmLfdDKyjAiyfrPJTCp6CXrh5gGNnjn2TviMfo6L"
+organization = "D7TyJk1xEuFRX1iS5Dp1UB768PCRm1rCHKp2kyKCodBK"
 
 [registry]
 url = "https://api.apr.dev"
