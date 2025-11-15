@@ -6,7 +6,7 @@ use organization::program::Organization as OrganizationProgram;
 use organization::{self, MemberAccount, OrganizationAccount, Role};
 
 // The unique on-chain address of this program.
-declare_id!("BVZYgNw8YioFpMFWa1VMVJMMSminfgxkQYdkH4NfFZWs");
+declare_id!("7QUC9PnRnZrLiDJP9GQKLnuLaxBXkMyajLey8sWZSSMH");
 
 #[program]
 pub mod film {

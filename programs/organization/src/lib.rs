@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
-declare_id!("9KzyadumcHu2ECUGjQgYVSK5gnYfxqDFbam4CYd5WyxS");
+declare_id!("EgJ1QY4wa8V8rLLNRUWiV91Uv8jpjBss7hiDB1UzQMiX");
 
-const FILM_PROGRAM_ID: &str = "BVZYgNw8YioFpMFWa1VMVJMMSminfgxkQYdkH4NfFZWs";
+const FILM_PROGRAM_ID: &str = "7QUC9PnRnZrLiDJP9GQKLnuLaxBXkMyajLey8sWZSSMH";
 
 #[program]
 pub mod organization {
