@@ -1,26 +1,25 @@
 use anchor_lang::prelude::*;
 
-declare_id!("EgJ1QY4wa8V8rLLNRUWiV91Uv8jpjBss7hiDB1UzQMiX");
-
-const FILM_PROGRAM_ID: &str = "7QUC9PnRnZrLiDJP9GQKLnuLaxBXkMyajLey8sWZSSMH";
+declare_id!("YzZAf4xv95XzF3ZX1tjVBFJgbVzRnZpjW9Kx1mY2zag");
 
 #[program]
 pub mod organization {
     use super::*;
 
     /// Creates a new organization and its first admin member.
-    /// The organization is a PDA derived from the admin's key and the organization's name.
     pub fn create_organization(
         ctx: Context<CreateOrganization>,
         org_id: u64,
         name: String,
         url: Option<String>,
+        film_program_id: Pubkey,
     ) -> Result<()> {
         let org: &mut Account<'_, OrganizationAccount> = &mut ctx.accounts.organization;
         org.admin = ctx.accounts.admin.key();
         org.org_id = org_id;
         org.name = name;
         org.url = url;
+        org.authorized_film_program = film_program_id;
         org.members_count = 1;
         org.films_count = 0;
         org.bump = ctx.bumps.organization;
@@ -31,12 +30,16 @@ pub mod organization {
         member.role = Role::Admin as u8;
         member.bump = ctx.bumps.admin_member;
 
-        msg!("Organization '{}' created!", org.name);
+        emit!(OrganizationCreated {
+            org_id,
+            admin: ctx.accounts.admin.key(),
+            name: org.name.clone(),
+        });
+
         Ok(())
     }
 
     /// Adds a new member to an existing organization.
-    /// Only an admin of the organization can perform this action.
     pub fn add_member(ctx: Context<AddMember>, role: Role) -> Result<()> {
         let member: &mut Account<'_, MemberAccount> = &mut ctx.accounts.member;
         member.org = ctx.accounts.organization.key();
@@ -50,12 +53,11 @@ pub mod organization {
             .checked_add(1)
             .ok_or(ErrorCode::Overflow)?;
 
-        msg!("New member added to '{}'", org.name);
+        msg!("New member added: {}", member.wallet);
         Ok(())
     }
 
     /// Removes a member from an organization.
-    /// Only an admin can perform this action. The member's account is closed.
     pub fn remove_member(ctx: Context<RemoveMember>) -> Result<()> {
         require!(
             ctx.accounts.member.wallet != ctx.accounts.admin.key(),
@@ -68,21 +70,17 @@ pub mod organization {
             .checked_sub(1)
             .ok_or(ErrorCode::Underflow)?;
 
-        msg!(
-            "Member {} removed from '{}'",
-            ctx.accounts.member.wallet,
-            org.name
-        );
+        msg!("Member removed: {}", ctx.accounts.member.wallet);
         Ok(())
     }
 
     /// Updates the metadata of an organization.
-    /// Only an admin can perform this action.
     pub fn update_organization(
         ctx: Context<UpdateOrganization>,
         name: Option<String>,
         url: Option<String>,
         clear_url: bool,
+        new_film_program_id: Option<Pubkey>,
     ) -> Result<()> {
         let org: &mut Account<'_, OrganizationAccount> = &mut ctx.accounts.organization;
         if let Some(n) = name {
@@ -93,14 +91,52 @@ pub mod organization {
         } else if let Some(u) = url {
             org.url = Some(u);
         }
-        msg!("Organization '{}' updated!", org.name);
+        if let Some(pid) = new_film_program_id {
+            org.authorized_film_program = pid;
+        }
+
+        emit!(OrganizationUpdated {
+            org_id: org.org_id,
+            name: org.name.clone(),
+        });
+
         Ok(())
     }
 
-    // --- CPI Functions for Program-to-Program Interaction ---
+    /// Updates the role of an existing member.
+    pub fn update_member_role(ctx: Context<UpdateMemberRole>, new_role: Role) -> Result<()> {
+        require!(
+            ctx.accounts.member.wallet != ctx.accounts.admin.key(),
+            ErrorCode::CannotUpdateSelfRole
+        );
 
-    /// (CPI) Increments the film count for an organization.
-    /// This instruction can ONLY be called by your `film_program`.
+        ctx.accounts.member.role = new_role as u8;
+        Ok(())
+    }
+
+    /// Transfers admin rights to another member.
+    /// The old admin becomes a regular Uploader.
+    pub fn transfer_admin_rights(ctx: Context<TransferAdminRights>) -> Result<()> {
+        let org: &mut Account<'_, OrganizationAccount> = &mut ctx.accounts.organization;
+        let old_admin_member: &mut Account<'_, MemberAccount> = &mut ctx.accounts.old_admin_member;
+        let new_admin_member: &mut Account<'_, MemberAccount> = &mut ctx.accounts.new_admin_member;
+
+        org.admin = ctx.accounts.new_admin.key();
+        old_admin_member.role = Role::Uploader as u8;
+
+        new_admin_member.role = Role::Admin as u8;
+
+        emit!(AdminTransferred {
+            org: org.key(),
+            old_admin: ctx.accounts.old_admin.key(),
+            new_admin: ctx.accounts.new_admin.key(),
+        });
+
+        Ok(())
+    }
+
+    // --- CPI Functions ---
+
     pub fn increment_film_count(ctx: Context<FilmCountCPI>) -> Result<()> {
         ctx.accounts.organization.films_count = ctx
             .accounts
@@ -111,8 +147,6 @@ pub mod organization {
         Ok(())
     }
 
-    /// (CPI) Decrements the film count for an organization.
-    /// This instruction can ONLY be called by your `film_program`.
     pub fn decrement_film_count(ctx: Context<FilmCountCPI>) -> Result<()> {
         ctx.accounts.organization.films_count = ctx
             .accounts
@@ -124,52 +158,65 @@ pub mod organization {
     }
 }
 
-/// Defines the roles a member can have within an organization.
+// --- Data Structures ---
+
 #[repr(u8)]
-#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Clone, Copy)]
+#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Clone, Copy, Debug)]
 pub enum Role {
     Admin = 1,
     Uploader = 2,
 }
 
-/// The main account representing an organization (e.g., a production company, film archive).
 #[account]
 #[derive(InitSpace)]
 pub struct OrganizationAccount {
-    /// The original founder of the organization.
     pub admin: Pubkey,
-    /// A unique identifier for the organization.
     pub org_id: u64,
-    /// The name of the organization, used as a PDA seed (max 64 bytes).
     #[max_len(64)]
     pub name: String,
-    /// A link to the organization's website or info.
     #[max_len(128)]
     pub url: Option<String>,
-    /// The number of members in the organization.
+    pub authorized_film_program: Pubkey,
     pub members_count: u32,
-    /// The number of films registered by the organization.
     pub films_count: u32,
-    /// The bump of the PDA.
     pub bump: u8,
 }
 
-/// The account that links a user's wallet to an organization with a specific role.
 #[account]
 #[derive(InitSpace)]
 pub struct MemberAccount {
-    /// The key of the organization this member belongs to.
     pub org: Pubkey,
-    /// The public key of the member's wallet.
     pub wallet: Pubkey,
-    /// The member's role (Admin, Uploader).
     pub role: u8,
-    /// The bump of the PDA.
     pub bump: u8,
 }
 
+// --- Events ---
+
+#[event]
+pub struct OrganizationCreated {
+    pub org_id: u64,
+    pub admin: Pubkey,
+    pub name: String,
+}
+
+#[event]
+pub struct OrganizationUpdated {
+    pub org_id: u64,
+    pub name: String,
+}
+
+#[event]
+pub struct AdminTransferred {
+    pub org: Pubkey,
+    pub old_admin: Pubkey,
+    pub new_admin: Pubkey,
+}
+
+// --- Contexts ---
+
 #[derive(Accounts)]
-#[instruction(org_id: u64, name: String, url: Option<String>)]
+#[instruction(org_id: u64, name: String, url: Option<String>, film_program_id: Pubkey)]
 pub struct CreateOrganization<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
@@ -210,7 +257,7 @@ pub struct AddMember<'info> {
     pub admin_member: Account<'info, MemberAccount>,
     #[account(mut, address = admin_member.org)]
     pub organization: Account<'info, OrganizationAccount>,
-    /// CHECK: Just the public key of the new member. Initialization is handled securely.
+    /// CHECK: Validated via seeds
     pub new_member: UncheckedAccount<'info>,
     #[account(
         init,
@@ -248,7 +295,37 @@ pub struct RemoveMember<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(name: Option<String>, url: Option<String>, clear_url: bool)]
+pub struct TransferAdminRights<'info> {
+    #[account(mut)]
+    pub old_admin: Signer<'info>,
+
+    /// CHECK: Validated in constraints
+    pub new_admin: UncheckedAccount<'info>,
+
+    #[account(
+        mut,
+        constraint = organization.admin == old_admin.key() @ ErrorCode::Unauthorized
+    )]
+    pub organization: Account<'info, OrganizationAccount>,
+
+    #[account(
+        mut,
+        seeds = [b"member", organization.key().as_ref(), old_admin.key().as_ref()],
+        bump = old_admin_member.bump,
+        constraint = old_admin_member.role == Role::Admin as u8 @ ErrorCode::Unauthorized
+    )]
+    pub old_admin_member: Account<'info, MemberAccount>,
+
+    #[account(
+        mut,
+        seeds = [b"member", organization.key().as_ref(), new_admin.key().as_ref()],
+        bump = new_admin_member.bump
+    )]
+    pub new_admin_member: Account<'info, MemberAccount>,
+}
+
+#[derive(Accounts)]
+#[instruction(name: Option<String>, url: Option<String>, clear_url: bool, new_film_program_id: Option<Pubkey>)]
 pub struct UpdateOrganization<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
@@ -271,21 +348,40 @@ pub struct UpdateOrganization<'info> {
 }
 
 #[derive(Accounts)]
-pub struct FilmCountCPI<'info> {
+#[instruction(new_role: Role)]
+pub struct UpdateMemberRole<'info> {
     #[account(mut)]
+    pub admin: Signer<'info>,
+    #[account(
+        constraint = admin_member.org == organization.key() @ ErrorCode::Unauthorized,
+        constraint = admin_member.wallet == admin.key() @ ErrorCode::Unauthorized,
+        constraint = admin_member.role == Role::Admin as u8 @ ErrorCode::Unauthorized,
+        seeds = [b"member", organization.key().as_ref(), admin.key().as_ref()],
+        bump = admin_member.bump,
+    )]
+    pub admin_member: Account<'info, MemberAccount>,
+    #[account(address = admin_member.org)]
     pub organization: Account<'info, OrganizationAccount>,
+    #[account(
+        mut,
+        constraint = member.org == organization.key() @ ErrorCode::InvalidMember,
+        seeds = [b"member", organization.key().as_ref(), member.wallet.as_ref()],
+        bump = member.bump,
+    )]
+    pub member: Account<'info, MemberAccount>,
+}
 
-    /// CHECK: This is the PDA signer for the film program.
-    /// The `#[account(seeds, bump)]` constraint ensures this PDA is valid.
+#[derive(Accounts)]
+pub struct FilmCountCPI<'info> {
+    #[account(
+        mut,
+        constraint = organization.authorized_film_program == film_program.key() @ ErrorCode::UnauthorizedProgram
+    )]
+    pub organization: Account<'info, OrganizationAccount>,
+    /// CHECK: PDA signer from film program
     #[account(signer)]
     pub program_signer: UncheckedAccount<'info>,
-
-    #[account(
-        constraint = film_program.key() == FILM_PROGRAM_ID.parse::<Pubkey>().unwrap() @ ErrorCode::Unauthorized
-    )]
-
-    /// CHECK: This is the PDA for the film program.
-    /// The `#[account(seeds, bump)]` constraint ensures this PDA is valid.
+    /// CHECK: The film program calling the CPI
     pub film_program: UncheckedAccount<'info>,
 }
 
@@ -305,4 +401,10 @@ pub enum ErrorCode {
     Underflow,
     #[msg("An admin cannot remove themselves from the organization.")]
     CannotRemoveSelf,
+    #[msg("An admin cannot update their own role.")]
+    CannotUpdateSelfRole,
+    #[msg("The specified member does not belong to this organization.")]
+    InvalidMember,
+    #[msg("The calling program is not authorized by this organization.")]
+    UnauthorizedProgram,
 }

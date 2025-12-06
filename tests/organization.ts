@@ -10,7 +10,14 @@ describe("organization", () => {
   anchor.setProvider(provider);
   const program = anchor.workspace.Organization as Program<Organization>;
 
+  const dummyFilmProgramId = Keypair.generate().publicKey;
+
   const Role = {
+    Admin: { admin: {} },
+    Uploader: { uploader: {} },
+  };
+
+  const RoleValue = {
     Admin: 1,
     Uploader: 2,
   };
@@ -83,7 +90,12 @@ describe("organization", () => {
     adminMemberPDA = pdaResult.adminMemberPDA;
 
     await program.methods
-      .createOrganization(orgId, orgName, "https://test.cine.org")
+      .createOrganization(
+        orgId,
+        orgName,
+        "https://test.cine.org",
+        dummyFilmProgramId
+      )
       .accountsPartial({
         admin: admin.publicKey,
         organization: orgPDA,
@@ -94,7 +106,7 @@ describe("organization", () => {
 
     uploaderMemberPDA = findMemberPDA(orgPDA, uploader.publicKey);
     await program.methods
-      .addMember({ uploader: {} })
+      .addMember(Role.Uploader)
       .accountsPartial({
         admin: admin.publicKey,
         adminMember: adminMemberPDA,
@@ -110,6 +122,10 @@ describe("organization", () => {
     const orgAccount = await program.account.organizationAccount.fetch(orgPDA);
     assert.strictEqual(orgAccount.name, "CineOrg Test");
     assert.strictEqual(
+      orgAccount.authorizedFilmProgram.toString(),
+      dummyFilmProgramId.toString()
+    );
+    assert.strictEqual(
       orgAccount.membersCount,
       2,
       "Should have admin and uploader members"
@@ -121,7 +137,7 @@ describe("organization", () => {
     const anotherMemberPDA = findMemberPDA(orgPDA, anotherMember.publicKey);
 
     await program.methods
-      .addMember({ admin: {} })
+      .addMember(Role.Admin)
       .accountsPartial({
         admin: admin.publicKey,
         adminMember: adminMemberPDA,
@@ -171,7 +187,7 @@ describe("organization", () => {
     const newName = "Updated Name";
 
     await program.methods
-      .updateOrganization(newName, null, true)
+      .updateOrganization(newName, null, true, null)
       .accountsPartial({
         admin: admin.publicKey,
         adminMember: adminMemberPDA,
@@ -194,7 +210,7 @@ describe("organization", () => {
 
     try {
       await program.methods
-        .createOrganization(localOrgId, longName, null)
+        .createOrganization(localOrgId, longName, null, dummyFilmProgramId)
         .accountsPartial({
           admin: localAdmin.publicKey,
           organization: localOrgPDA,
@@ -217,7 +233,7 @@ describe("organization", () => {
 
     try {
       await program.methods
-        .addMember({ admin: {} })
+        .addMember(Role.Admin)
         .accountsPartial({
           admin: attacker.publicKey,
           adminMember: adminMemberPDA,
@@ -252,5 +268,136 @@ describe("organization", () => {
         "An admin cannot remove themselves from the organization."
       );
     }
+  });
+
+  it("Should update a member's role", async () => {
+    const testMember = await createAndFundWallet();
+    const testMemberPDA = findMemberPDA(orgPDA, testMember.publicKey);
+
+    await program.methods
+      .addMember(Role.Uploader)
+      .accountsPartial({
+        admin: admin.publicKey,
+        adminMember: adminMemberPDA,
+        organization: orgPDA,
+        newMember: testMember.publicKey,
+        member: testMemberPDA,
+      })
+      .signers([admin])
+      .rpc();
+
+    let memberAccount = await program.account.memberAccount.fetch(
+      testMemberPDA
+    );
+    assert.strictEqual(
+      memberAccount.role,
+      RoleValue.Uploader,
+      "Role should be Uploader"
+    );
+
+    await program.methods
+      .updateMemberRole(Role.Admin)
+      .accountsPartial({
+        admin: admin.publicKey,
+        adminMember: adminMemberPDA,
+        organization: orgPDA,
+        member: testMemberPDA,
+      })
+      .signers([admin])
+      .rpc();
+
+    memberAccount = await program.account.memberAccount.fetch(testMemberPDA);
+    assert.strictEqual(
+      memberAccount.role,
+      RoleValue.Admin,
+      "Role should be updated to Admin"
+    );
+  });
+
+  it("Should fail to update self (admin) role", async () => {
+    try {
+      await program.methods
+        .updateMemberRole(Role.Uploader)
+        .accountsPartial({
+          admin: admin.publicKey,
+          adminMember: adminMemberPDA,
+          organization: orgPDA,
+          member: adminMemberPDA,
+        })
+        .signers([admin])
+        .rpc();
+      assert.fail("Transaction should have failed");
+    } catch (err) {
+      assert.include(
+        err.error.errorMessage,
+        "An admin cannot update their own role."
+      );
+    }
+  });
+
+  it("Should transfer admin rights successfully", async () => {
+    const newAdmin = await createAndFundWallet();
+    const newAdminMemberPDA = findMemberPDA(orgPDA, newAdmin.publicKey);
+
+    await program.methods
+      .addMember(Role.Uploader)
+      .accountsPartial({
+        admin: admin.publicKey,
+        adminMember: adminMemberPDA,
+        organization: orgPDA,
+        newMember: newAdmin.publicKey,
+        member: newAdminMemberPDA,
+      })
+      .signers([admin])
+      .rpc();
+
+    let newAdminMember = await program.account.memberAccount.fetch(
+      newAdminMemberPDA
+    );
+    assert.strictEqual(
+      newAdminMember.role,
+      RoleValue.Uploader,
+      "New admin should start as Uploader"
+    );
+
+    await program.methods
+      .transferAdminRights()
+      .accountsPartial({
+        oldAdmin: admin.publicKey,
+        newAdmin: newAdmin.publicKey,
+        organization: orgPDA,
+        oldAdminMember: adminMemberPDA,
+        newAdminMember: newAdminMemberPDA,
+      })
+      .signers([admin])
+      .rpc();
+
+    const orgAccount = await program.account.organizationAccount.fetch(orgPDA);
+    assert.strictEqual(
+      orgAccount.admin.toString(),
+      newAdmin.publicKey.toString(),
+      "Org admin should be updated"
+    );
+
+    const oldAdminMember = await program.account.memberAccount.fetch(
+      adminMemberPDA
+    );
+    assert.strictEqual(
+      oldAdminMember.role,
+      RoleValue.Uploader,
+      "Old admin should be downgraded"
+    );
+
+    newAdminMember = await program.account.memberAccount.fetch(
+      newAdminMemberPDA
+    );
+    assert.strictEqual(
+      newAdminMember.role,
+      RoleValue.Admin,
+      "New admin should be upgraded"
+    );
+
+    admin = newAdmin;
+    adminMemberPDA = newAdminMemberPDA;
   });
 });
