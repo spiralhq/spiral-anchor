@@ -215,6 +215,7 @@ pub mod film {
         Ok(())
     }
 
+    /// Updates the metadata URI of an existing film NFT.
     pub fn update_film_metadata(ctx: Context<UpdateFilmMetadata>, new_uri: String) -> Result<()> {
         require!(
             !new_uri.is_empty() && new_uri.len() <= 200,
@@ -250,6 +251,7 @@ pub mod film {
         Ok(())
     }
 
+    /// Burns an existing film NFT.
     pub fn burn_film(ctx: Context<BurnFilm>) -> Result<()> {
         // Burn Token
         token_2022::burn(
