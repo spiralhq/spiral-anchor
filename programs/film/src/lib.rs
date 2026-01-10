@@ -12,7 +12,7 @@ use organization::cpi::accounts::FilmCountCPI;
 use organization::program::Organization as OrganizationProgram;
 use organization::{self, MemberAccount, OrganizationAccount, Role};
 
-declare_id!("Bwg63EExwoe2iR96hXwUd6edXK9EJw2p94ftjVFjfaH1");
+declare_id!("2YBAqZiFW4ctjvdDGY9NNa954Cf5KJ1oSCmgs2Nt6Mjy");
 
 #[program]
 pub mod film {

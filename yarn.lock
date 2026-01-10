@@ -39,7 +39,141 @@
     bn.js "^5.1.2"
     buffer-layout "^1.2.0"
 
-"@noble/curves@^1.4.2":
+"@metaplex-foundation/mpl-token-metadata@^3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-token-metadata/-/mpl-token-metadata-3.4.0.tgz#03a2ab3b90ac30973407565e07cc570c8897385d"
+  integrity sha512-AxBAYCK73JWxY3g9//z/C9krkR0t1orXZDknUPS4+GjwGH2vgPfsk04yfZ31Htka2AdS9YE/3wH7sMUBHKn9Rg==
+  dependencies:
+    "@metaplex-foundation/mpl-toolbox" "^0.10.0"
+
+"@metaplex-foundation/mpl-toolbox@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-toolbox/-/mpl-toolbox-0.10.0.tgz#c7d2f27259e69ab86cc4b7dd55b7bfef11bbed13"
+  integrity sha512-84KD1L5cFyw5xnntHwL4uPwfcrkKSiwuDeypiVr92qCUFuF3ZENa2zlFVPu+pQcjTlod2LmEX3MhBmNjRMpdKg==
+
+"@metaplex-foundation/umi-bundle-defaults@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-bundle-defaults/-/umi-bundle-defaults-1.4.1.tgz#280b0e55e9501f0b1103778790b23b588559abaf"
+  integrity sha512-c0o0bgKgSN4CGggriwImD9FmQbcCku/ztmwDdjNKGCDzbz0oYaoOezpDRRpcP+HGz/s2okVTf02z/ogj+DndPg==
+  dependencies:
+    "@metaplex-foundation/umi-downloader-http" "^1.4.1"
+    "@metaplex-foundation/umi-eddsa-web3js" "^1.4.1"
+    "@metaplex-foundation/umi-http-fetch" "^1.4.1"
+    "@metaplex-foundation/umi-program-repository" "^1.4.1"
+    "@metaplex-foundation/umi-rpc-chunk-get-accounts" "^1.4.1"
+    "@metaplex-foundation/umi-rpc-web3js" "^1.4.1"
+    "@metaplex-foundation/umi-serializer-data-view" "^1.4.1"
+    "@metaplex-foundation/umi-transaction-factory-web3js" "^1.4.1"
+
+"@metaplex-foundation/umi-downloader-http@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-downloader-http/-/umi-downloader-http-1.4.1.tgz#f43812865c60eca69d40b321a0386d4a710155d1"
+  integrity sha512-gncYvRtN+s6pJ6gfwjlDD3JQDW+gNBBw0F76P0hJq3i+sTwaCeVQBs161Zes0rCPB6oEJWngqowATl/kIxnXqA==
+
+"@metaplex-foundation/umi-eddsa-web3js@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-eddsa-web3js/-/umi-eddsa-web3js-1.4.1.tgz#20d20bcbcfe17be127de36cf44a7292270d0f45b"
+  integrity sha512-SFbme/y43X6t/aiiE2PKkzNE8UOgJyTFb4dnXU23ZMalk+LbGCyZNBMWix+ztjeCrdBQhILfbLLZzHuFikAd0g==
+  dependencies:
+    "@metaplex-foundation/umi-web3js-adapters" "^1.4.1"
+    "@noble/curves" "^1.0.0"
+    yaml "^2.7.0"
+
+"@metaplex-foundation/umi-http-fetch@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-http-fetch/-/umi-http-fetch-1.4.1.tgz#9e0f16dfc6714dea25a072c9786096b5bdd39f74"
+  integrity sha512-ItvPkRPTXWH6YeBB7WTS3qKCDVrjEhGpb+fCBypzCkdXvS9zRwN+I/I6IcB+GJnEFdTIip8+XSeWMOrW8ZDCkQ==
+  dependencies:
+    node-fetch "^2.6.7"
+
+"@metaplex-foundation/umi-options@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-options/-/umi-options-1.4.1.tgz#281a9ec0630a142b52a75844e39a184896177d56"
+  integrity sha512-+36Sm16a9GFlheAnqIjsi5lV7+9J9/lhYOcwXK9bkRARucA9evT/dajmpXHUkPOi3JjlVbl3knWvcPkbhyP2Og==
+
+"@metaplex-foundation/umi-program-repository@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-program-repository/-/umi-program-repository-1.4.1.tgz#3b8b93709615f357e78e7510dae8dfdc26ac415c"
+  integrity sha512-Cy0siWwNC3kUf8UxlYgR8aDmBPizNhER7icEcd4b9itNTZf3XjekE3rEPFO1UFys+bql4UcJ42SepkDtVzsDsw==
+
+"@metaplex-foundation/umi-public-keys@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-public-keys/-/umi-public-keys-1.4.1.tgz#fd690732c15c81e72bd40c028f3eb9f84fbf424f"
+  integrity sha512-UB+MVzK8GIMLYS7qgtl7Qr5fUW36EelUk2VA/VyQJZb2rlQYZu08/whc75uwGhPX2Mr67NzVSoSTkTpUb29zrg==
+  dependencies:
+    "@metaplex-foundation/umi-serializers-encodings" "^1.4.1"
+
+"@metaplex-foundation/umi-rpc-chunk-get-accounts@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-rpc-chunk-get-accounts/-/umi-rpc-chunk-get-accounts-1.4.1.tgz#8f855e95090814c50757a5cd22f96b25f3855ccf"
+  integrity sha512-3aHQe/XT9+LZe6f3PHX0RSmUPeDB+3J2l29dQDq80KdGDfL19ELogaP5OutsKB1W3NoXBSwzhuOjtE6gG9aQgA==
+
+"@metaplex-foundation/umi-rpc-web3js@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-rpc-web3js/-/umi-rpc-web3js-1.4.1.tgz#69d76449ced646a6e1e89e214925ffa02b03b700"
+  integrity sha512-xR0KVz6n3RZ3qO8axxIhDCBjki9jj7fYgKijO0zJC85YZeuos6A6vuA14LpTaonWlkD892M3Ua0YC7dUOL9CzQ==
+  dependencies:
+    "@metaplex-foundation/umi-web3js-adapters" "^1.4.1"
+
+"@metaplex-foundation/umi-serializer-data-view@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-serializer-data-view/-/umi-serializer-data-view-1.4.1.tgz#97a41f570b482f24b18cce169d58aa0c2669ac8f"
+  integrity sha512-SSJvXkjj0+Rfz7ZbYD8yMmF/5dRQgqzUW/FkH6si/EiYxyTmRmMaeCo85RZAUSjbJgpz8DFwLmLceptFiTwk5A==
+
+"@metaplex-foundation/umi-serializers-core@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-serializers-core/-/umi-serializers-core-1.4.1.tgz#b10a40d93243ffdc0fd02e783bfb78e250ba84f8"
+  integrity sha512-xLI2ZEFJYoVdlQQMeKNLBsi56qQ2xC7htWDa30gqw/hhuMy3W82MtgLiK/3tU96MNi86TKSNVOdXmY815/QJsg==
+
+"@metaplex-foundation/umi-serializers-encodings@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-serializers-encodings/-/umi-serializers-encodings-1.4.1.tgz#9537b54658787c2dd481e84f6bcfede996f7014a"
+  integrity sha512-KnIp8T3mSMoDI5gmLre6UZMZpBVZ5tpZsAaLLfuiSfRolUsBLo90gmXJWwUWWZihhcvaN0xMdyx+k1KK+nwK9Q==
+  dependencies:
+    "@metaplex-foundation/umi-serializers-core" "^1.4.1"
+
+"@metaplex-foundation/umi-serializers-numbers@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-serializers-numbers/-/umi-serializers-numbers-1.4.1.tgz#d99ce9ab49934605ca24f7a699a7d0a74ba33a77"
+  integrity sha512-vk5f6QTdudXJDyyZAO7IDNiGRkF70nLdx4LBCvstbmTv2535HinV06R1mBRA9dx20D6SxRASdw33BH3mAYPfbQ==
+  dependencies:
+    "@metaplex-foundation/umi-serializers-core" "^1.4.1"
+
+"@metaplex-foundation/umi-serializers@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-serializers/-/umi-serializers-1.4.1.tgz#c0845694b87e199f253d9f76c04a0c3d4dae3e60"
+  integrity sha512-DnuTBS+6Ycjaz1BsOKmUZCJcdyJooIpiJ5gy/snhmh8YKDAZuxezBqRzKSR/pKPXieURbL/UPCdJ6a9OFCjcYQ==
+  dependencies:
+    "@metaplex-foundation/umi-options" "^1.4.1"
+    "@metaplex-foundation/umi-public-keys" "^1.4.1"
+    "@metaplex-foundation/umi-serializers-core" "^1.4.1"
+    "@metaplex-foundation/umi-serializers-encodings" "^1.4.1"
+    "@metaplex-foundation/umi-serializers-numbers" "^1.4.1"
+
+"@metaplex-foundation/umi-transaction-factory-web3js@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-transaction-factory-web3js/-/umi-transaction-factory-web3js-1.4.1.tgz#3774a3575a4741821575403cc4970a824ae5fdd5"
+  integrity sha512-ppygQl2W5NZ1s/w6rBldQekTpgdVKaNEwK4bHRf81+mnJTgsH1iXl72M4y1ARNt3472Fv910vZQo9/XYeRbSaQ==
+  dependencies:
+    "@metaplex-foundation/umi-web3js-adapters" "^1.4.1"
+
+"@metaplex-foundation/umi-web3js-adapters@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi-web3js-adapters/-/umi-web3js-adapters-1.4.1.tgz#1c2edae285c94e16fc3eed5da16061b31fc82dbd"
+  integrity sha512-9LkueHDVVljRY83HcaRxGh011zMwrFpvlgb2VrkYlhC7afTM7VrDw4oxdR1zwC80bXyf0D1gyKqi+ANO8QQqtw==
+  dependencies:
+    buffer "^6.0.3"
+
+"@metaplex-foundation/umi@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/umi/-/umi-1.4.1.tgz#0ecaa4c6e0c53722af8ded2a49299a08c7cfcf31"
+  integrity sha512-GGdmKsZq8nGInhjk8jpW4h4pNX8eZgTChnosvBmX/4lTznu+nOJuIsgO9r7LuUkR8zaSfjUheC/T5e7AtRku+g==
+  dependencies:
+    "@metaplex-foundation/umi-options" "^1.4.1"
+    "@metaplex-foundation/umi-public-keys" "^1.4.1"
+    "@metaplex-foundation/umi-serializers" "^1.4.1"
+
+"@noble/curves@^1.0.0", "@noble/curves@^1.4.2":
   version "1.9.7"
   resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.9.7.tgz#79d04b4758a43e4bca2cbdc62e7771352fa6b951"
   integrity sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw==
@@ -896,7 +1030,7 @@ nanoid@3.3.1:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.1.tgz#6347a18cac88af88f58af0b3594b723d5e99bb35"
   integrity sha512-n6Vs/3KGyxPQd6uO0eH4Bv0ojGSUvuLlIHtC3Y0kEO23YRge8H9x1GCzLn28YX0H66pMkxuaeESFq4tKISKwdw==
 
-node-fetch@^2.7.0:
+node-fetch@^2.6.7, node-fetch@^2.7.0:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.7.0.tgz#d0f0fa6e3e2dc1d27efcd8ad99d550bda94d187d"
   integrity sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==
@@ -1226,6 +1360,11 @@ y18n@^5.0.5:
   version "5.0.8"
   resolved "https://registry.yarnpkg.com/y18n/-/y18n-5.0.8.tgz#7f4934d0f7ca8c56f95314939ddcd2dd91ce1d55"
   integrity sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==
+
+yaml@^2.7.0:
+  version "2.8.2"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.8.2.tgz#5694f25eca0ce9c3e7a9d9e00ce0ddabbd9e35c5"
+  integrity sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==
 
 yargs-parser@20.2.4:
   version "20.2.4"

@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, CloseAccount, Mint, Token, TokenAccount, Transfer};
 
-declare_id!("DmJ2i449s713AD6R9MM2fVzxyV3GsmmzoxKgtUNimJfL");
+declare_id!("4WJgyjn5qLXPXMp9zpXbYc98gZrBSZdkhqDHQBAZs6JQ");
 
 #[program]
 pub mod preservation {
