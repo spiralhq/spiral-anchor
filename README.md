@@ -1,3 +1,11 @@
+> **Frozen repository.** As of the Spiral Protocol's Pré TCC (tag `v0.3-tokenomics`), this
+> repository is frozen as a project reference. Active development continues in
+> [`spiralhq/spiral-programs`](https://github.com/spiralhq/spiral-programs) (on-chain) and
+> [`spiralhq/spiral-backbone`](https://github.com/spiralhq/spiral-backbone) (off-chain). This
+> repository resumes for the TCC, with tokenomics, DAO/Realms, and the `preservation` program.
+
+---
+
 # 🌀 Spiral Anchor
 
 <div align="center">
